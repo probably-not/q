@@ -61,6 +61,6 @@ func (q *Q) Push(factor int) (int, bool) {
 
 // PushCommit will commit the previously executed Push operation to the queue.
 // This moves the index of the queue to the next push-able index.
-func (q *Q) PushCommit(queue *Q) {
-	atomic.AddUint32((*uint32)(queue), 1)
+func (q *Q) PushCommit() {
+	atomic.AddUint32((*uint32)(q), 1)
 }
