@@ -10,6 +10,10 @@ const (
 	overflowProtectionBit = uint32(-0x8000 & 0xffffffff)
 )
 
+func NewQ() Q {
+	return 0
+}
+
 // Pop will calculate the position that can currently be popped from the queue.
 // It returns the position, along with a boolean indicating if the queue is empty or not.
 // If the queue is empty, `-1, true` will be returned.
