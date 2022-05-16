@@ -3,7 +3,7 @@ package micro
 import (
 	"sync/atomic"
 
-	"github.com/probably-not/q/consts"
+	"github.com/probably-not/q/internal/consts"
 )
 
 type noCopy struct{}

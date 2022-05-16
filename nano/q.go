@@ -3,7 +3,7 @@ package nano
 import (
 	"sync/atomic"
 
-	"github.com/probably-not/q/consts"
+	"github.com/probably-not/q/internal/consts"
 )
 
 type Q uint32
