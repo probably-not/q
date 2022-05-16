@@ -6,9 +6,3 @@
 // Package pico is not safe to use in a multiple producer/multiple consumer scenario, as the time between the
 // <Op> and <Op>Commit operations is not managed and is therefore racy.
 package pico
-
-const (
-	commitPop              = uint32(0x10000)
-	pushOverflowCheck      = uint32(0x8000)
-	pushOverflowProtection = uint32(-0x8000 & 0xffffffff)
-)

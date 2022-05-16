@@ -1,6 +1,10 @@
 package pico
 
-import "sync/atomic"
+import (
+	"sync/atomic"
+
+	"github.com/probably-not/q/consts"
+)
 
 type Q uint32
 
@@ -28,7 +32,7 @@ func (q *Q) Pop(factor int) (int, bool) {
 // PopCommit will commit the previously executed Pop operation to the queue.
 // This moves the index of the queue to the next pop-able index.
 func (q *Q) PopCommit() {
-	atomic.AddUint32((*uint32)(q), commitPop)
+	atomic.AddUint32((*uint32)(q), consts.CommitPopU32)
 }
 
 // Push will calculate the position that can currently be pushed to in the queue.
@@ -42,8 +46,8 @@ func (q *Q) Push(factor int) (int, bool) {
 	tail := acquired >> 16 & mask
 	next := (head + uint32(1)) & mask
 
-	if acquired&pushOverflowCheck != 0 {
-		atomic.AddUint32((*uint32)(q), pushOverflowProtection)
+	if acquired&consts.PushOverflowCheckU32 != 0 {
+		atomic.AddUint32((*uint32)(q), consts.PushOverflowProtectionU32)
 	}
 
 	if next == tail {

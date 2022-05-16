@@ -6,9 +6,3 @@
 // Package nano is not safe to use in a multiple producer/multiple consumer scenario, however with a single producer
 // you may have multiple consumers.
 package nano
-
-const (
-	commitPop              = uint32(0x10000)
-	pushOverflowCheck      = uint32(0x8000)
-	pushOverflowProtection = uint32(-0x8000 & 0xffffffff)
-)
