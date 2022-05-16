@@ -56,7 +56,7 @@ func (q *Q) Push(factor int) (int, bool) {
 		return -1, true
 	}
 
-	return int(tail), false
+	return int(head), false
 }
 
 // PushCommit will commit the previously executed Push operation to the queue.
