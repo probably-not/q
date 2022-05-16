@@ -225,7 +225,9 @@ func TestConcurrentWorkMultipleConsumers(t *testing.T) {
 	q := NewQ()
 	const queueSizeFactor = 6
 	const availableSlots = 1 << queueSizeFactor
-	jobs := [availableSlots]int64{}
+	// [availableSlots]int64{} is the underlying type of the atomic value.
+	atomicJobs := &atomic.Value{}
+	atomicJobs.Store([availableSlots]int64{})
 
 	var wg sync.WaitGroup
 	wg.Add(1) // Add producer goroutine
@@ -247,8 +249,11 @@ func TestConcurrentWorkMultipleConsumers(t *testing.T) {
 				continue
 			}
 
+			jobs := atomicJobs.Load().([availableSlots]int64)
 			jobs[slot] = i
-			producedSum += i
+			if atomicJobs.CompareAndSwap(jobs, func() [availableSlots]int64 { newJobs := jobs; jobs[slot] = i; return newJobs }()) {
+				producedSum += i
+			}
 			q.PushCommit()
 		}
 	}()
@@ -273,6 +278,7 @@ func TestConcurrentWorkMultipleConsumers(t *testing.T) {
 					continue
 				}
 
+				jobs := atomicJobs.Load().([availableSlots]int64)
 				job := jobs[slot]
 				if !q.PopCommit(savepoint) {
 					continue // Commit failed so we can't run the job
