@@ -2,7 +2,9 @@ package pico
 
 import (
 	"math/rand"
+	"sync"
 	"testing"
+	"time"
 )
 
 func TestPop(t *testing.T) {
@@ -149,5 +151,67 @@ func TestPush(t *testing.T) {
 				subT.Errorf("expected next isFull to be %t, got %t", tC.nextExpectedIsFull, isFull)
 			}
 		})
+	}
+}
+
+func TestConcurrentWork(t *testing.T) {
+	q := NewQ()
+	const queueSizeFactor = 6
+	const availableSlots = 1 << queueSizeFactor
+	jobs := [availableSlots]int{}
+
+	var wg sync.WaitGroup
+	wg.Add(2) // Add producer and consumer goroutines
+
+	// Producer
+	producedSum := 0
+	go func() {
+		defer wg.Done()
+		fullAttempts := 0
+
+		for i := 0; i < 1000; i++ {
+			slot, isFull := q.Push(queueSizeFactor)
+			if isFull {
+				fullAttempts++
+				if fullAttempts > 1000 {
+					break
+				}
+				<-time.After(1 * time.Millisecond) // Allow some sleeping so that it's not a pure busy loop
+				continue
+			}
+
+			jobs[slot] = i
+			producedSum += i
+			q.PushCommit()
+		}
+	}()
+
+	sum := 0
+	// Consumer
+	go func() {
+		defer wg.Done()
+		emptyAttempts := 0
+
+		for {
+			slot, isEmpty := q.Pop(queueSizeFactor)
+			if isEmpty {
+				emptyAttempts++
+				if emptyAttempts > 1000 {
+					break
+				}
+				<-time.After(1 * time.Millisecond) // Allow some sleeping so that it's not a pure busy loop
+				continue
+			}
+
+			job := jobs[slot]
+			q.PopCommit()
+			sum += job
+		}
+	}()
+
+	wg.Wait()
+
+	if producedSum != sum {
+		t.Errorf("expected the sum to be %d but got %d", producedSum, sum)
 	}
 }
