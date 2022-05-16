@@ -4,8 +4,8 @@ import "testing"
 
 func TestPop(t *testing.T) {
 	var queue Q
-	queueSize := 6
-	idx, isEmpty := Pop(&queue, queueSize)
+	queueSizeFactor := 6
+	idx, isEmpty := queue.Pop(queueSizeFactor)
 	if idx != -1 {
 		t.Errorf("expected the returned index to be -1, got %d", idx)
 	}

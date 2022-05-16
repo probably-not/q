@@ -14,9 +14,9 @@ const (
 // It returns the position, along with a boolean indicating if the queue is empty or not.
 // If the queue is empty, `-1, true` will be returned.
 // If the queue is not empty, `pos, false` will be returned.
-func Pop(q *Q, exp int) (int, bool) {
+func (q *Q) Pop(factor int) (int, bool) {
 	acquired := atomic.LoadUint32((*uint32)(q))
-	mask := (uint32(1) << exp) - 1
+	mask := (uint32(1) << factor) - 1
 	head := acquired & mask
 	tail := acquired >> 16 & mask
 
@@ -29,7 +29,7 @@ func Pop(q *Q, exp int) (int, bool) {
 
 // PopCommit will commit the previously executed Pop operation to the queue.
 // This moves the index of the queue to the next pop-able index.
-func PopCommit(q *Q) {
+func (q *Q) PopCommit() {
 	atomic.AddUint32((*uint32)(q), release)
 }
 
@@ -37,9 +37,9 @@ func PopCommit(q *Q) {
 // It returns the position, along with a boolean indicating if the queue is full or not.
 // If the queue is full, `-1, true` will be returned.
 // If the queue is not full, `pos, false` will be returned.
-func Push(q *Q, exp int) (int, bool) {
+func (q *Q) Push(factor int) (int, bool) {
 	acquired := atomic.LoadUint32((*uint32)(q))
-	mask := (uint32(1) << exp) - 1
+	mask := (uint32(1) << factor) - 1
 	head := acquired & mask
 	tail := acquired >> 16 & mask
 	next := (head + uint32(1)) & mask
@@ -57,6 +57,6 @@ func Push(q *Q, exp int) (int, bool) {
 
 // PushCommit will commit the previously executed Push operation to the queue.
 // This moves the index of the queue to the next push-able index.
-func PushCommit(queue *Q) {
+func (q *Q) PushCommit(queue *Q) {
 	atomic.AddUint32((*uint32)(queue), 1)
 }
