@@ -155,10 +155,10 @@ func TestPush(t *testing.T) {
 }
 
 func TestConcurrentWork(t *testing.T) {
-	runConcurrentWork(t)
+	runConcurrentWorkPicoQ(t)
 }
 
-func runConcurrentWork(t testing.TB) {
+func runConcurrentWorkPicoQ(t testing.TB) {
 	const queueSizeFactor = 6
 	const availableSlots = 1 << queueSizeFactor
 	q := NewQ()
