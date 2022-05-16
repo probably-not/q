@@ -3,8 +3,6 @@
 // with the indices of jobs pushed to the queue and jobs popped from the queue fully managed by the `nano.Q`.
 // The slice of jobs itself is managed by an outside source, however access to this slice of jobs should be fully
 // managed by the `nano.Q` type.
-// A caveat of multiple consumers is that the slice of jobs must be wrapped with threadsafe access, in order to ensure
-// that the concurrently running consumers do not cause data races.
 // Package nano is not safe to use in a multiple producer/multiple consumer scenario, however with a single producer
 // you may have multiple consumers.
 package nano
