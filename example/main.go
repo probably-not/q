@@ -14,8 +14,8 @@ func main() {
 	nanoQ := nano.NewQ()
 	microQ := micro.NewQ(6)
 	fmt.Println("=========================== Queue Memory Sizes ===========================")
-	fmt.Println("PicoQ:", unsafe.Sizeof(picoQ), "bytes")
-	fmt.Println("NanoQ:", unsafe.Sizeof(nanoQ), "bytes")
-	fmt.Println("MicroQ:", unsafe.Sizeof(microQ), "bytes")
+	fmt.Println("PicoQ:", unsafe.Sizeof(picoQ)*8, "bits")
+	fmt.Println("NanoQ:", unsafe.Sizeof(nanoQ)*8, "bits")
+	fmt.Println("MicroQ:", unsafe.Sizeof(microQ)*8, "bits")
 	fmt.Println("==========================================================================")
 }
