@@ -250,8 +250,9 @@ func TestConcurrentWorkMultipleConsumers(t *testing.T) {
 			}
 
 			jobs := atomicJobs.Load().([availableSlots]int64)
-			jobs[slot] = i
-			if atomicJobs.CompareAndSwap(jobs, func() [availableSlots]int64 { newJobs := jobs; jobs[slot] = i; return newJobs }()) {
+			newJobs := jobs
+			newJobs[slot] = i
+			if atomicJobs.CompareAndSwap(jobs, newJobs) {
 				producedSum += i
 			}
 			q.PushCommit()
@@ -290,6 +291,10 @@ func TestConcurrentWorkMultipleConsumers(t *testing.T) {
 	}
 
 	wg.Wait()
+
+	if producedSum < 1000 {
+		t.Errorf("expected the produced sum to be greater than 1000 but got %d", producedSum)
+	}
 
 	if producedSum != sum {
 		t.Errorf("expected the sum to be %d but got %d", producedSum, sum)
