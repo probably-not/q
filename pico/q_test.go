@@ -155,13 +155,9 @@ func TestPush(t *testing.T) {
 }
 
 func TestConcurrentWork(t *testing.T) {
-	runConcurrentWorkPicoQ(t)
-}
-
-func runConcurrentWorkPicoQ(t testing.TB) {
+	q := NewQ()
 	const queueSizeFactor = 6
 	const availableSlots = 1 << queueSizeFactor
-	q := NewQ()
 	jobs := [availableSlots]int{}
 
 	var wg sync.WaitGroup
