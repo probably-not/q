@@ -28,7 +28,7 @@ func (q *Q) Pop(factor int) (int, bool) {
 // PopCommit will commit the previously executed Pop operation to the queue.
 // This moves the index of the queue to the next pop-able index.
 func (q *Q) PopCommit() {
-	atomic.AddUint32((*uint32)(q), release)
+	atomic.AddUint32((*uint32)(q), commitPop)
 }
 
 // Push will calculate the position that can currently be pushed to in the queue.
@@ -42,8 +42,8 @@ func (q *Q) Push(factor int) (int, bool) {
 	tail := acquired >> 16 & mask
 	next := (head + uint32(1)) & mask
 
-	if acquired&overflowCheck != 0 {
-		atomic.AddUint32((*uint32)(q), overflowProtectionBit)
+	if acquired&pushOverflowCheck != 0 {
+		atomic.AddUint32((*uint32)(q), pushOverflowProtection)
 	}
 
 	if next == tail {
