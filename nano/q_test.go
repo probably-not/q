@@ -3,6 +3,7 @@ package nano
 import (
 	"math/rand"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -212,6 +213,75 @@ func TestConcurrentWorkSingleConsumer(t *testing.T) {
 			sum += job
 		}
 	}()
+
+	wg.Wait()
+
+	if producedSum != sum {
+		t.Errorf("expected the sum to be %d but got %d", producedSum, sum)
+	}
+}
+
+func TestConcurrentWorkMultipleConsumers(t *testing.T) {
+	q := NewQ()
+	const queueSizeFactor = 6
+	const availableSlots = 1 << queueSizeFactor
+	jobs := [availableSlots]int64{}
+
+	var wg sync.WaitGroup
+	wg.Add(1) // Add producer goroutine
+
+	// Producer
+	producedSum := int64(0)
+	go func() {
+		defer wg.Done()
+		fullAttempts := 0
+
+		for i := int64(0); i < 1000; i++ {
+			slot, isFull := q.Push(queueSizeFactor)
+			if isFull {
+				fullAttempts++
+				if fullAttempts > 1000 {
+					break
+				}
+				<-time.After(1 * time.Millisecond) // Allow some sleeping so that it's not a pure busy loop
+				continue
+			}
+
+			jobs[slot] = i
+			producedSum += i
+			q.PushCommit()
+		}
+	}()
+
+	sum := int64(0)
+	// Consumer
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+			emptyAttempts := 0
+
+			for {
+				slot, savepoint, isEmpty := q.Pop(queueSizeFactor)
+				if isEmpty {
+					emptyAttempts++
+					if emptyAttempts > 1000 {
+						break
+					}
+					<-time.After(1 * time.Millisecond) // Allow some sleeping so that it's not a pure busy loop
+					continue
+				}
+
+				job := jobs[slot]
+				if !q.PopCommit(savepoint) {
+					continue // Commit failed so we can't run the job
+				}
+
+				atomic.AddInt64(&sum, job)
+			}
+		}()
+	}
 
 	wg.Wait()
 
