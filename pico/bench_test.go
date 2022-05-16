@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// BenchmarkProduce-10    	  507206	      2287 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkProduce(b *testing.B) {
 	b.StopTimer()
 
@@ -70,6 +71,7 @@ func BenchmarkProduce(b *testing.B) {
 	}
 }
 
+// BenchmarkConsume-10    	788615026	         1.353 ns/op	       0 B/op	       0 allocs/op
 func BenchmarkConsume(b *testing.B) {
 	b.StopTimer()
 
