@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"unsafe"
+
+	"github.com/probably-not/q/pico"
+)
 
 func main() {
-	fmt.Println("Hello there")
+	picoQ := pico.NewQ()
+	fmt.Println("=========================== Queue Memory Sizes ===========================")
+	fmt.Println("PicoQ:", unsafe.Sizeof(picoQ), "bytes")
+	fmt.Println("==========================================================================")
 }
