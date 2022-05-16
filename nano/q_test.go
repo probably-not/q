@@ -168,8 +168,12 @@ func TestConcurrentWorkSingleConsumer(t *testing.T) {
 
 	// Producer
 	producedSum := 0
+	completedProducing := int32(0)
 	go func() {
-		defer wg.Done()
+		defer func() {
+			atomic.AddInt32(&completedProducing, 1)
+			wg.Done()
+		}()
 		fullAttempts := 0
 
 		for i := 0; i < 1000; i++ {
@@ -189,17 +193,15 @@ func TestConcurrentWorkSingleConsumer(t *testing.T) {
 		}
 	}()
 
-	sum := 0
 	// Consumer
+	sum := 0
 	go func() {
 		defer wg.Done()
-		emptyAttempts := 0
 
 		for {
 			slot, savepoint, isEmpty := q.Pop(queueSizeFactor)
 			if isEmpty {
-				emptyAttempts++
-				if emptyAttempts > 1000 {
+				if atomic.LoadInt32(&completedProducing) > 0 {
 					break
 				}
 				<-time.After(1 * time.Millisecond) // Allow some sleeping so that it's not a pure busy loop
@@ -234,8 +236,12 @@ func TestConcurrentWorkMultipleConsumers(t *testing.T) {
 
 	// Producer
 	producedSum := int64(0)
+	completedProducing := int32(0)
 	go func() {
-		defer wg.Done()
+		defer func() {
+			atomic.AddInt32(&completedProducing, 1)
+			wg.Done()
+		}()
 		fullAttempts := 0
 
 		for i := int64(0); i < 1000; i++ {
@@ -259,20 +265,18 @@ func TestConcurrentWorkMultipleConsumers(t *testing.T) {
 		}
 	}()
 
-	sum := int64(0)
 	// Consumer
+	sum := int64(0)
 	for i := 0; i < 10; i++ {
 		wg.Add(1)
 
 		go func() {
 			defer wg.Done()
-			emptyAttempts := 0
 
 			for {
 				slot, savepoint, isEmpty := q.Pop(queueSizeFactor)
 				if isEmpty {
-					emptyAttempts++
-					if emptyAttempts > 1000 {
+					if atomic.LoadInt32(&completedProducing) > 0 {
 						break
 					}
 					<-time.After(1 * time.Millisecond) // Allow some sleeping so that it's not a pure busy loop
