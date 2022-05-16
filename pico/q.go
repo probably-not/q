@@ -4,12 +4,6 @@ import "sync/atomic"
 
 type Q uint32
 
-const (
-	release               = uint32(0x10000)
-	overflowCheck         = uint32(0x8000)
-	overflowProtectionBit = uint32(-0x8000 & 0xffffffff)
-)
-
 func NewQ() Q {
 	return 0
 }
