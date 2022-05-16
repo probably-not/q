@@ -5,6 +5,79 @@ import (
 	"testing"
 )
 
+func TestPop(t *testing.T) {
+	testCases := []struct {
+		desc                string
+		queue               Q
+		expectedAllowedPops int
+		expectedIdx         int
+		expectedIsEmpty     bool
+		queueSizeFactor     int
+	}{
+		{
+			desc:            "Zero value of queue is empty",
+			queue:           NewQ(),
+			expectedIdx:     -1,
+			expectedIsEmpty: true,
+			queueSizeFactor: 6,
+		},
+		{
+			desc: "Pops are allowed as many times as there are jobs in the queue, and when completed return empty",
+			queue: func() Q {
+				q := NewQ()
+				for i := 0; i < 10; i++ {
+					q.PushCommit() // 10 pushes
+				}
+				return q
+			}(),
+			expectedAllowedPops: 10,
+			expectedIdx:         -1,
+			expectedIsEmpty:     true,
+			queueSizeFactor:     6,
+		},
+		{
+			desc: "Pops are allowed as many times as there are jobs in the queue, and when not completed return the next index",
+			queue: func() Q {
+				q := NewQ()
+				for i := 0; i < 10; i++ {
+					q.PushCommit() // 10 pushes
+				}
+				return q
+			}(),
+			expectedAllowedPops: 8,
+			expectedIdx:         8,
+			expectedIsEmpty:     false,
+			queueSizeFactor:     6,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(subT *testing.T) {
+			for i := 0; i < tC.expectedAllowedPops; i++ {
+				idx, isEmpty := tC.queue.Pop(tC.queueSizeFactor)
+				if idx == -1 || isEmpty {
+					subT.Errorf("unexpected empty queue during allowed pops at pop number %d", i)
+					return
+				}
+
+				if i != idx {
+					subT.Errorf("expected popped job to be %d but got %d", i, idx)
+				}
+
+				tC.queue.PopCommit()
+			}
+
+			idx, isEmpty := tC.queue.Pop(tC.queueSizeFactor)
+			if tC.expectedIdx != idx {
+				subT.Errorf("expected the returned index to be %d, got %d", tC.expectedIdx, idx)
+			}
+
+			if tC.expectedIsEmpty != isEmpty {
+				subT.Errorf("expected isEmpty to be %t, got %t", tC.expectedIsEmpty, isEmpty)
+			}
+		})
+	}
+}
+
 func TestPush(t *testing.T) {
 	randomAmountOfJobs := rand.Intn(62)
 
