@@ -3,7 +3,7 @@ package pico
 import "testing"
 
 func TestPop(t *testing.T) {
-	var queue Q
+	queue := NewQ()
 	queueSizeFactor := 6
 	idx, isEmpty := queue.Pop(queueSizeFactor)
 	if idx != -1 {
