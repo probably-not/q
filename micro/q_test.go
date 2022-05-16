@@ -10,12 +10,12 @@ import (
 
 func TestPop(t *testing.T) {
 	testCases := []struct {
-		desc                string
 		queue               *Q
+		desc                string
 		expectedAllowedPops int
 		expectedIdx         int
-		expectedIsEmpty     bool
 		queueSizeFactor     int
+		expectedIsEmpty     bool
 	}{
 		{
 			desc:            "Zero value of queue is empty",
@@ -87,13 +87,13 @@ func TestPush(t *testing.T) {
 	randomAmountOfJobs := rand.Intn(62)
 
 	testCases := []struct {
-		desc               string
 		queue              *Q
-		expectedIsFull     bool
-		nextExpectedIsFull bool
+		desc               string
 		expectedIdx        int
 		nextExpectedIdx    int
 		queueSizeFactor    int
+		expectedIsFull     bool
+		nextExpectedIsFull bool
 	}{
 		{
 			desc:               "Zero value of queue allows pushing",

@@ -10,11 +10,11 @@ import (
 func TestPop(t *testing.T) {
 	testCases := []struct {
 		desc                string
-		queue               Q
 		expectedAllowedPops int
 		expectedIdx         int
-		expectedIsEmpty     bool
 		queueSizeFactor     int
+		queue               Q
+		expectedIsEmpty     bool
 	}{
 		{
 			desc:            "Zero value of queue is empty",
