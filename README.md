@@ -11,3 +11,5 @@ This is probably not ready for production. There are a lot of caveats for workin
 This is not meant as a "better channel" implementation, it is very much not an implementation of a channel, and it barely does anything that channels do.
 
 This is 100% a learning project to see whether I could implement the design found in the link above, along with seeing how to squeeze out every inch of performance that I can from it.
+
+This only supports Go 1.17+, since we are using features only available after Go 1.17.
